@@ -187,6 +187,7 @@
 #include <vector>
 #include <limits>
 #include <type_traits>
+#include <concepts>
 #include <cstdint>
 
 namespace Terra::ProgramOptions
@@ -253,21 +254,26 @@ struct Option
 // Define a type used to specify the set of valid options
 using Options = std::vector<Option>;
 
+// Define a concept for template functions accepting numeric types
+template <typename T>
+concept NumericType = std::is_integral_v<T> || std::is_floating_point_v<T>;
+
 // Define the class to parse program options
 class Parser
 {
     public:
         Parser();
-        Parser(const Options &options,
-               const std::vector<std::string> &short_flags = {"-"},
-               const std::vector<std::string> &long_flags = {"--"},
-               const std::string &option_value_separator = "=",
-               const bool case_insensitive = false);
-        Parser(const Parser &parser);
-        Parser(Parser &&parser) noexcept;
+        Parser(Options options,
+               std::vector<std::string> short_flags = {"-"},
+               std::vector<std::string> long_flags = {"--"},
+               std::string option_value_separator = "=",
+               bool case_insensitive = false);
+        Parser(const Parser &parser) = default;
+        Parser(Parser &&parser) noexcept = default;
         virtual ~Parser() = default;
 
-        Parser &operator=(const Parser &program_options);
+        Parser &operator=(const Parser &parser) = default;
+        Parser &operator=(Parser &&parser) = default;
 
         void SetOptions(const Options &options,
                         const std::vector<std::string> &short_flags = {"-"},
@@ -288,9 +294,7 @@ class Parser
         std::vector<std::string> GetOptionStrings(
                                             const std::string &option_name);
 
-        template<typename T,
-            std::enable_if_t<std::is_integral<T>::value ||
-                             std::is_floating_point<T>::value, bool> = true>
+        template<NumericType T>
         void GetOptionValue(const std::string &option_name,
                             T &option_value,
                             T min = std::numeric_limits<T>::min(),
@@ -300,9 +304,7 @@ class Parser
             GetOptionValues(option_name, option_values, min, max);
             option_value = option_values.front();
         }
-        template<typename T,
-            std::enable_if_t<std::is_integral<T>::value ||
-                             std::is_floating_point<T>::value, bool> = true>
+        template<NumericType T>
         void GetOptionValues(const std::string &option_name,
                              std::vector<T> &option_values,
                              T min = std::numeric_limits<T>::min(),
@@ -311,9 +313,7 @@ class Parser
     protected:
         const std::vector<std::string> &FindOptionStrings(
                                             const std::string &option_name);
-        template<typename T, typename Func,
-            std::enable_if_t<std::is_integral<T>::value ||
-                             std::is_floating_point<T>::value, bool> = true>
+        template<NumericType T, typename Func>
         void GetOptionValues(const std::string &option_name,
                              const Func &converter,
                              std::vector<T> &option_values,

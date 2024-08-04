@@ -31,7 +31,7 @@ namespace Terra::ProgramOptions
  *  Description:
  *      Parser constructor having no default program options.  It is assumed
  *      the caller will later call SetOptions() to provide the program
- *      options.
+ *      options if something other than the defaults are desired.
  *
  *  Parameters:
  *      None.
@@ -42,9 +42,9 @@ namespace Terra::ProgramOptions
  *  Comments:
  *      None.
  */
-Parser::Parser()
+Parser::Parser() : Parser(Options{})
 {
-    SetOptions({});
+    // Nothing more to do
 }
 
 /*
@@ -81,97 +81,18 @@ Parser::Parser()
  *  Comments:
  *      None.
  */
-Parser::Parser(const Options &options,
-               const std::vector<std::string> &short_flags,
-               const std::vector<std::string> &long_flags,
-               const std::string &option_value_separator,
-               const bool case_insensitive)
+Parser::Parser(Options options,
+               std::vector<std::string> short_flags,
+               std::vector<std::string> long_flags,
+               std::string option_value_separator,
+               bool case_insensitive) :
+    options{std::move(options)},
+    short_flags{std::move(short_flags)},
+    long_flags{std::move(long_flags)},
+    option_value_separator{std::move(option_value_separator)},
+    case_insensitive{case_insensitive},
+    option_map{}
 {
-    SetOptions(options,
-               short_flags,
-               long_flags,
-               option_value_separator,
-               case_insensitive);
-}
-
-/*
- *  Parser::Parser()
- *
- *  Description:
- *      Parser copy constructor.
- *
- *  Parameters:
- *      parser [in]
- *          The other Parser object from which to copy.
- *
- *  Returns:
- *      Nothing.
- *
- *  Comments:
- *      None.
- */
-Parser::Parser(const Parser &parser) :
-    options{parser.options},
-    short_flags{parser.short_flags},
-    long_flags{parser.long_flags},
-    option_value_separator{parser.option_value_separator},
-    case_insensitive{parser.case_insensitive},
-    option_map{parser.option_map}
-{
-}
-
-/*
- *  Parser::Parser()
- *
- *  Description:
- *      Parser move constructor.
- *
- *  Parameters:
- *      parser [in]
- *          The other Parser object from which to move.
- *
- *  Returns:
- *      Nothing.
- *
- *  Comments:
- *      None.
- */
-Parser::Parser(Parser &&parser) noexcept :
-    options{std::move(parser.options)},
-    short_flags{std::move(parser.short_flags)},
-    long_flags{std::move(parser.long_flags)},
-    option_value_separator{std::move(parser.option_value_separator)},
-    case_insensitive{std::move(parser.case_insensitive)},
-    option_map{std::move(parser.option_map)}
-{
-}
-
-/*
- *  Parser::operator=()
- *
- *  Description:
- *      Parser copy constructor.
- *
- *  Parameters:
- *      parser [in]
- *          The other Parser object from which to copy.
- *
- *  Returns:
- *      Nothing.
- *
- *  Comments:
- *      None.
- */
-Parser &Parser::operator=(const Parser &parser)
-{
-    options = parser.options;
-    short_flags = parser.short_flags;
-    long_flags = parser.long_flags;
-    option_value_separator = parser.option_value_separator;
-    case_insensitive = parser.case_insensitive;
-    option_map = parser.option_map;
-
-    return *this;
 }
 
 /*
@@ -676,10 +597,10 @@ template<> void Parser::GetOptionValues<int>(
  *      value is not within the range min <= option_value <= max.
  */
 template<> void Parser::GetOptionValues<unsigned>(
-                                    const std::string &option_name,
-                                    std::vector<unsigned> &option_values,
-                                    unsigned min,
-                                    unsigned max)
+                                        const std::string &option_name,
+                                        std::vector<unsigned> &option_values,
+                                        unsigned min,
+                                        unsigned max)
 {
     // Define the converter function
     auto converter = [min, max](const std::string &value) -> unsigned
@@ -1083,9 +1004,7 @@ const std::vector<std::string> &Parser::FindOptionStrings(
  *      This function will throw an exception if the requested option
  *      cannot be converted properly.
  */
-template<typename T, typename Func,
-    std::enable_if_t<std::is_integral<T>::value ||
-                     std::is_floating_point<T>::value, bool>>
+template<NumericType T, typename Func>
 void Parser::GetOptionValues(const std::string &option_name,
                              const Func &converter,
                              std::vector<T> &option_values,
@@ -1366,13 +1285,13 @@ std::pair<bool, bool> Parser::ProcessLongOption(
                             const std::optional<std::string_view> &parameter)
 {
     // Iterator pointing to start of argument string
-    std::string_view::const_iterator argument_start_iterator;
+    std::string_view::const_iterator argument_start_iterator{};
 
     // Iterator pointing to end of argument string
-    std::string_view::const_iterator argument_end_iterator;
+    std::string_view::const_iterator argument_end_iterator{};
 
     // Iterator pointing to start of a value string
-    std::string_view::const_iterator value_start_iterator;
+    std::string_view::const_iterator value_start_iterator{};
 
     // Was an option matched?
     bool matched_option = false;
@@ -1541,7 +1460,7 @@ std::pair<bool, bool> Parser::ProcessShortOption(
                             const std::optional<std::string_view> &parameter)
 {
     // Iterator over the argument string
-    std::string_view::const_iterator argument_iterator;
+    std::string_view::const_iterator argument_iterator{};
 
     // Indicate whether parameter was consumed
     bool parameter_consumed = false;
@@ -1729,7 +1648,7 @@ bool Parser::FindOptionStart(
                 const std::string_view::const_iterator &argument_end_iterator)
 {
     // Saved copy of the start iterator
-    std::string_view::const_iterator argument_start_iterator_saved;
+    std::string_view::const_iterator argument_start_iterator_saved{};
 
     // If the start and end iterators equate, there is nothing to find
     if (argument_start_iterator == argument_end_iterator) return false;
