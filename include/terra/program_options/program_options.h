@@ -1,7 +1,7 @@
 /*
  *  program_options.h
  *
- *  Copyright (C) 2024
+ *  Copyright (C) 2024, 2025
  *  Terrapane Corporation
  *  All Rights Reserved
  *
@@ -263,11 +263,11 @@ class Parser
 {
     public:
         Parser();
-        Parser(Options options,
-               std::vector<std::string> short_flags = {"-"},
-               std::vector<std::string> long_flags = {"--"},
-               std::string option_value_separator = "=",
-               bool case_insensitive = false);
+        Parser(Options option_list,
+               std::vector<std::string> short_flag_list = {"-"},
+               std::vector<std::string> long_flag_list = {"--"},
+               std::string option_separator = "=",
+               bool is_case_insensitive = false);
         Parser(const Parser &parser) = default;
         Parser(Parser &&parser) noexcept = default;
         virtual ~Parser() = default;
@@ -275,11 +275,11 @@ class Parser
         Parser &operator=(const Parser &parser) = default;
         Parser &operator=(Parser &&parser) = default;
 
-        void SetOptions(const Options &options,
-                        const std::vector<std::string> &short_flags = {"-"},
-                        const std::vector<std::string> &long_flags = {"--"},
-                        const std::string &option_value_separator = "=",
-                        const bool case_insensitive = false);
+        void SetOptions(const Options &option_list,
+                        const std::vector<std::string> &short_flag_list = {"-"},
+                        const std::vector<std::string> &long_flag_list = {"--"},
+                        const std::string &option_separator = "=",
+                        const bool is_case_insensitive = false);
 
         virtual void ClearOptions();
 
@@ -341,20 +341,11 @@ class Parser
                         const std::string_view::const_iterator &end_iterator);
         static std::string Uppercase(std::string some_string);
 
-        // Program options
-        Options options;
-
-        // Strings for short options
-        std::vector<std::string> short_flags;
-
-        // Strings for long flags
-        std::vector<std::string> long_flags;
-
-        // Flag/value separator
-        std::string option_value_separator;
-
-        // Options case insensitive?
-        bool case_insensitive;
+        Options options;                        // Program options
+        std::vector<std::string> short_flags;   // Strings for short flags
+        std::vector<std::string> long_flags;    // Strings for long flags
+        std::string option_value_separator;     // Flag/value separator
+        bool case_insensitive;                  // Options case insensitive?
 
         // A map to hold the parsed program options
         // NOTE: The key "" (i.e., empty string) is used to hold all strings

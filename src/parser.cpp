@@ -1,7 +1,7 @@
 /*
  *  parser.cpp
  *
- *  Copyright (C) 2024
+ *  Copyright (C) 2024, 2025
  *  Terrapane Corporation
  *  All Rights Reserved
  *
@@ -58,15 +58,15 @@ Parser::Parser() : Parser(Options{})
  *      options [in]
  *          The valid program options.
  *
- *      short_flags [in]
+ *      short_flag_list [in]
  *          Vector of strings used to indicate program option flags (or
  *          "switches"), such as "-" or "/".  Defaults is "-".
  *
- *      long_flags [in]
+ *      long_flag_list [in]
  *          Vector of strings used to indicate program option flags (or
  *          "switches"), such as "-" or "/".  Defaults is "--".
  *
- *      option_value_separator [in]
+ *      option_separator [in]
  *          A string used to separate an option name from a value (e.g., "=" in
  *          an argument like "--param=value").  Default is "=".
  *
@@ -81,15 +81,15 @@ Parser::Parser() : Parser(Options{})
  *  Comments:
  *      None.
  */
-Parser::Parser(Options options,
-               std::vector<std::string> short_flags,
-               std::vector<std::string> long_flags,
-               std::string option_value_separator,
+Parser::Parser(Options option_list,
+               std::vector<std::string> short_flag_list,
+               std::vector<std::string> long_flag_list,
+               std::string option_separator,
                bool case_insensitive) :
-    options{std::move(options)},
-    short_flags{std::move(short_flags)},
-    long_flags{std::move(long_flags)},
-    option_value_separator{std::move(option_value_separator)},
+    options{std::move(option_list)},
+    short_flags{std::move(short_flag_list)},
+    long_flags{std::move(long_flag_list)},
+    option_value_separator{std::move(option_separator)},
     case_insensitive{case_insensitive},
     option_map{}
 {
@@ -105,22 +105,22 @@ Parser::Parser(Options options,
  *      will also clear any previously processed options.
  *
  *  Parameters:
- *      options [in]
+ *      option_list [in]
  *          The valid program options.
  *
- *      short_flags [in]
+ *      short_flag_list [in]
  *          Vector of strings used to indicate program option flags (or
  *          "switches"), such as "-" or "/".  Defaults is "-".
  *
- *      long_flags [in]
+ *      long_flag_list [in]
  *          Vector of strings used to indicate program option flags (or
  *          "switches"), such as "-" or "/".  Defaults is "--".
  *
- *      option_value_separator [in]
+ *      option_separator [in]
  *          A string used to separate an option name from a value (e.g., "=" in
  *          an argument like "--param=value").  Default is "=".
  *
- *      case_insensitive [in]
+ *      is_case_insensitive [in]
  *          Indicates that options are matched case insensitively.  Default
  *          is false.
  *
@@ -131,18 +131,18 @@ Parser::Parser(Options options,
  *  Comments:
  *      None.
  */
-void Parser::SetOptions(const Options &options,
-                        const std::vector<std::string> &short_flags,
-                        const std::vector<std::string> &long_flags,
-                        const std::string &option_value_separator,
-                        const bool case_insensitive)
+void Parser::SetOptions(const Options &option_list,
+                        const std::vector<std::string> &short_flag_list,
+                        const std::vector<std::string> &long_flag_list,
+                        const std::string &option_separator,
+                        const bool is_case_insensitive)
 {
     // Assign parameters to member variables
-    this->options = options;
-    this->short_flags = short_flags;
-    this->long_flags = long_flags;
-    this->option_value_separator = option_value_separator;
-    this->case_insensitive = case_insensitive;
+    this->options = option_list;
+    this->short_flags = short_flag_list;
+    this->long_flags = long_flag_list;
+    this->option_value_separator = option_separator;
+    this->case_insensitive = is_case_insensitive;
 
     // Clear any previously processed options
     ClearOptions();
@@ -203,10 +203,10 @@ void Parser::ClearOptions()
  */
 void Parser::ParseArguments(const int argc, const char *const argv[])
 {
-    if (argc > 0)
-    {
-        ParseArguments(std::vector<std::string_view>(argv, argv + argc));
-    }
+    // Do nothing if argc doesn't indicate options exist
+    if (argc <= 0) return;
+
+    ParseArguments(std::vector<std::string_view>(argv, argv + argc));
 }
 
 /*
@@ -544,11 +544,10 @@ template<> void Parser::GetOptionValues<unsigned short>(
  *      value to numeric value.  Lastly, an exception will be thrown if the
  *      value is not within the range min <= option_value <= max.
  */
-template<> void Parser::GetOptionValues<int>(
-                                            const std::string &option_name,
-                                            std::vector<int> &option_values,
-                                            int min,
-                                            int max)
+template<> void Parser::GetOptionValues<int>(const std::string &option_name,
+                                             std::vector<int> &option_values,
+                                             int min,
+                                             int max)
 {
     // Define the converter function
     auto converter = [](const std::string &value) -> int
@@ -655,11 +654,10 @@ template<> void Parser::GetOptionValues<unsigned>(
  *      value to numeric value.  Lastly, an exception will be thrown if the
  *      value is not within the range min <= option_value <= max.
  */
-template<> void Parser::GetOptionValues<long>(
-                                            const std::string &option_name,
-                                            std::vector<long> &option_values,
-                                            long min,
-                                            long max)
+template<> void Parser::GetOptionValues<long>(const std::string &option_name,
+                                              std::vector<long> &option_values,
+                                              long min,
+                                              long max)
 {
     // Define the converter function
     auto converter = [](const std::string &value) -> long
@@ -864,10 +862,10 @@ template<> void Parser::GetOptionValues<unsigned long long>(
  *      value is not within the range min <= option_value <= max.
  */
 template<> void Parser::GetOptionValues<float>(
-                                        const std::string &option_name,
-                                        std::vector<float> &option_values,
-                                        float min,
-                                        float max)
+                                            const std::string &option_name,
+                                            std::vector<float> &option_values,
+                                            float min,
+                                            float max)
 {
     // Define the converter function
     auto converter = [](const std::string &value) -> float
@@ -916,10 +914,10 @@ template<> void Parser::GetOptionValues<float>(
  *      value is not within the range min <= option_value <= max.
  */
 template<> void Parser::GetOptionValues<double>(
-                                        const std::string &option_name,
-                                        std::vector<double> &option_values,
-                                        double min,
-                                        double max)
+                                            const std::string &option_name,
+                                            std::vector<double> &option_values,
+                                            double min,
+                                            double max)
 {
     // Define the converter function
     auto converter = [](const std::string &value) -> double
@@ -957,7 +955,7 @@ template<> void Parser::GetOptionValues<double>(
  *      an option by calling OptionGiven() or GetOptionCount().
  */
 const std::vector<std::string> &Parser::FindOptionStrings(
-                                            const std::string &option_name)
+                                                const std::string &option_name)
 {
     auto it = option_map.find(option_name);
 
