@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.21)
 
 # Define the Program Options library
 project(program_options
-        VERSION 1.0.2.0
+        VERSION 1.0.3.0
         DESCRIPTION "Program Options Library"
         LANGUAGES CXX)
 
@@ -21,10 +21,11 @@ option(program_options_INSTALL "Install the Program Options Library" ON)
 # Determine whether clang-tidy will be performed
 option(program_options_CLANG_TIDY "Use clang-tidy to perform linting during build" OFF)
 
+# Ensure testing is enabled to surface tests in dependencies
+include(CTest)
+
 add_subdirectory(dependencies)
 add_subdirectory(src)
-
-include(CTest)
 
 if(BUILD_TESTING AND program_options_BUILD_TESTS)
     add_subdirectory(test)

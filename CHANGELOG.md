@@ -1,5 +1,10 @@
 # Change Log
 
+v1.0.3
+
+- Updated dependencies
+- CMake changes to facilitate downstream unit testing
+
 v1.0.2
 
 - Updated STF dependency
