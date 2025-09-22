@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.21)
 
 # Define the Program Options library
 project(program_options
-        VERSION 1.0.3.0
+        VERSION 1.0.4.0
         DESCRIPTION "Program Options Library"
         LANGUAGES CXX)
 

@@ -15,4 +15,4 @@ set_target_properties(program_options_sample
 target_compile_options(program_options_sample
     PRIVATE
         $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>: -Wpedantic -Wextra -Wall>
-            $<$<CXX_COMPILER_ID:MSVC>: >)
+            $<$<CXX_COMPILER_ID:MSVC>:/W4 /WX>)

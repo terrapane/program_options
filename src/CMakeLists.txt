@@ -1,3 +1,6 @@
+# Include standard installation directory variables
+include(GNUInstallDirs)
+
 # Create the library
 add_library(program_options STATIC parser.cpp)
 add_library(Terra::program_options ALIAS program_options)
@@ -8,7 +11,7 @@ target_include_directories(program_options
         $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
     PUBLIC
         $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
-        $<INSTALL_INTERFACE:include>)
+        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
 
 # Specify the C++ standard to observe
 set_target_properties(program_options
@@ -36,8 +39,8 @@ target_compile_options(program_options
 
 # Install target and associated include files
 if(program_options_INSTALL)
-    install(TARGETS program_options EXPORT program_optionsTargets ARCHIVE)
     install(DIRECTORY ${PROJECT_SOURCE_DIR}/include/ TYPE INCLUDE)
+    install(TARGETS program_options EXPORT program_optionsTargets ARCHIVE)
     install(EXPORT program_optionsTargets
             FILE program_optionsConfig.cmake
             NAMESPACE Terra::
