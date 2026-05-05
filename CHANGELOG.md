@@ -1,5 +1,10 @@
 # Change Log
 
+v1.0.5
+
+- Addressed a number of issues raised by clang-tidy (e.g., pointer arithmetic,
+  use of std::ranges)
+
 v1.0.4
 
 - Addressed compiler warnings on Windows

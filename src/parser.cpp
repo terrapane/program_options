@@ -20,6 +20,10 @@
 #include <sstream>
 #include <algorithm>
 #include <cctype>
+#include <span>
+#include <iterator>
+#include <utility>
+#include <ranges>
 #include <terra/program_options/program_options.h>
 
 namespace Terra::ProgramOptions
@@ -201,12 +205,13 @@ void Parser::ClearOptions()
  *  Comments:
  *      None.
  */
+// NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays)
 void Parser::ParseArguments(const int argc, const char *const argv[])
 {
     // Do nothing if argc doesn't indicate options exist
     if (argc <= 0) return;
 
-    ParseArguments(std::vector<std::string_view>(argv, argv + argc));
+    ParseArguments(std::vector<std::string_view>(argv, std::next(argv, argc)));
 }
 
 /*
@@ -496,7 +501,8 @@ template<> void Parser::GetOptionValues<unsigned short>(
                      {
                          int i = std::stoi(value);
 
-                         if ((i < min) || (i > max))
+                         if ((std::cmp_less(i, min) ||
+                              std::cmp_greater(i, max)))
                          {
                              throw std::out_of_range("value out of range");
                          }
@@ -1147,7 +1153,7 @@ void Parser::CheckOptions()
         }
 
         // Ensure we have not seen this name before
-        if (identifiers.find(option.name) != identifiers.end())
+        if (identifiers.contains(option.name))
         {
             std::string error = "Duplicate option identifier found: ";
             throw SpecificationException(error + option.name,
@@ -1158,7 +1164,7 @@ void Parser::CheckOptions()
         // Ensure we have not seen this short option before (if specified)
         if (!option.short_option.empty())
         {
-            if (short_options.find(option.short_option) != short_options.end())
+            if (short_options.contains(option.short_option))
             {
                 std::string error = "Duplicate short option observed: ";
                 throw SpecificationException(
@@ -1178,7 +1184,7 @@ void Parser::CheckOptions()
         // Ensure we have not seen this long option before (if specified)
         if (!option.long_option.empty())
         {
-            if (long_options.find(option.long_option) != long_options.end())
+            if (long_options.contains(option.long_option))
             {
                 std::string error = "Duplicate long option observed: ";
                 throw SpecificationException(error + option.long_option,
@@ -1337,7 +1343,8 @@ std::pair<bool, bool> Parser::ProcessLongOption(
                  ((std::toupper(c) == std::toupper(*argument_end_iterator)))))
             {
                 option_characters_matched++;
-                if (++argument_end_iterator == argument.cend()) break;
+                argument_end_iterator = std::next(argument_end_iterator);
+                if (argument_end_iterator == argument.cend()) break;
             }
             else
             {
@@ -1493,7 +1500,7 @@ std::pair<bool, bool> Parser::ProcessShortOption(
 
         // Get character pointed to by the iterator
         std::string user_option = std::string() + *argument_iterator;
-        argument_iterator++;
+        argument_iterator = std::next(argument_iterator);
 
         // Iterate over the options to find a match
         for (const auto &option : options)
@@ -1574,8 +1581,7 @@ bool Parser::StoreOption(const Option &option,
 
     // Throw an exception if this option is already in the option_map, but
     // multiple instances are not allowed
-    if ((option_map.find(option.name) != option_map.end()) &&
-        !option.multiple_allowed)
+    if ((option_map.contains(option.name)) && !option.multiple_allowed)
     {
         std::ostringstream oss;
         oss << "Option \""
@@ -1717,7 +1723,8 @@ bool Parser::FindStringStart(
         if (c == *start_iterator)
         {
             prefix_characters_matched++;
-            if (++start_iterator == end_iterator) break;
+            start_iterator = std::next(start_iterator);
+            if (start_iterator == end_iterator) break;
         }
         else
         {
@@ -1747,13 +1754,10 @@ bool Parser::FindStringStart(
  */
 std::string Parser::Uppercase(std::string some_string)
 {
-    std::transform(some_string.begin(),
-                   some_string.end(),
-                   some_string.begin(),
-                   [](char c) -> char
-                   {
-                       return static_cast<char>(std::toupper(c));
-                   });
+    std::ranges::transform(some_string,
+                           some_string.begin(),
+                           [](char c) -> char
+                           { return static_cast<char>(std::toupper(c)); });
 
     return some_string;
 }
