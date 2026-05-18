@@ -335,15 +335,6 @@ class Parser
                             const std::optional<std::string_view> &parameter);
         bool StoreOption(const Option &option,
                          const std::optional<std::string_view> &parameter);
-        static bool FindOptionStart(
-                const std::vector<std::string> &flags,
-                std::string_view::const_iterator &argument_start_iterator,
-                const std::string_view::const_iterator &argument_end_iterator);
-        static bool FindStringStart(
-                        const std::string &prefix,
-                        std::string_view::const_iterator &start_iterator,
-                        const std::string_view::const_iterator &end_iterator);
-        static std::string Uppercase(std::string some_string);
 
         Options options;                        // Program options
         std::vector<std::string> short_flags;   // Strings for short flags

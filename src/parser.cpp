@@ -34,6 +34,157 @@
 namespace Terra::ProgramOptions
 {
 
+namespace
+{
+
+/*
+ *  FindStringStart()
+ *
+ *  Description:
+ *      This function will find the start of a string following a specified
+ *      string prefix.  The string prefix might be option flags (e.g., "--") or
+ *      an assignment character (e.g., "=").
+ *
+ *  Parameters:
+ *      prefix [in]
+ *          A string prefix to skip over.
+ *
+ *      start_iterator [in/out]
+ *          A string iterator pointing to the starting point to evaluate.
+ *
+ *      end_iterator [in]
+ *          An iterator pointing to the end of the string.
+ *
+ *  Returns:
+ *      Returns true if the prefix was located, in which case the
+ *      start_iterator will be set to the first character after the prefix
+ *      characters.  If the prefix could not be found, false is returned.  Note
+ *      that if no characters follow the prefix, the start_iterator will be
+ *      equal to end_iterator on return of true.
+ *
+ *  Comments:
+ *      None.
+ */
+bool FindStringStart(const std::string &prefix,
+                     std::string_view::const_iterator &start_iterator,
+                     const std::string_view::const_iterator &end_iterator)
+{
+    // Count of prefix characters matched
+    unsigned prefix_characters_matched = 0;
+
+    // If the start and end iterators equate, there is nothing to find
+    if (start_iterator == end_iterator) return false;
+
+    // Iterate over each character in the prefix
+    for (const auto c : prefix)
+    {
+        if (c == *start_iterator)
+        {
+            prefix_characters_matched++;
+            start_iterator = std::next(start_iterator);
+            if (start_iterator == end_iterator) break;
+        }
+        else
+        {
+            break;
+        }
+    }
+
+    // Did we match the entire prefix?
+    return (prefix.length() == prefix_characters_matched);
+}
+
+/*
+ *  FindOptionStart()
+ *
+ *  Description:
+ *      This function will accept a vector of strings containing option flags
+ *      (e.g., "--") and try to find the start of the argument beyond those
+ *      flags.  It will accept a start an end iterator for a string that is
+ *      used to compare with
+ *      the vector of flag strings.
+ *
+ *  Parameters:
+ *      flags [in]
+ *          Vector of option flags to evaluate.
+ *
+ *      argument_start_iterator [in/out]
+ *          A string iterator pointing to the start of a command-line argument.
+ *
+ *      argument_end [in]
+ *          A iterator pointing to the end of the string.
+ *
+ *  Returns:
+ *      True if flags were found and false if no flags were found.  If the
+ *      flags are true, the argument_start_iterator will be updated to point to
+ *      the first character after the option flags (i.e., the actual argument
+ *      name).
+ *
+ *  Comments:
+ *      None.
+ */
+bool FindOptionStart(
+                const std::vector<std::string> &flags,
+                std::string_view::const_iterator &argument_start_iterator,
+                const std::string_view::const_iterator &argument_end_iterator)
+{
+    // Saved copy of the start iterator
+    std::string_view::const_iterator argument_start_iterator_saved{};
+
+    // If the start and end iterators equate, there is nothing to find
+    if (argument_start_iterator == argument_end_iterator) return false;
+
+    // Let's point to the start of the argument
+    argument_start_iterator_saved = argument_start_iterator;
+
+    // Consider each possible flag string (e.g., "--")
+    for (const auto &flag : flags)
+    {
+        // Let's point to the start of the argument
+        argument_start_iterator = argument_start_iterator_saved;
+
+        // See if we can find the flags at the start of the string
+        if (FindStringStart(flag,
+                            argument_start_iterator,
+                            argument_end_iterator))
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+/*
+ *  Uppercase()
+ *
+ *  Description:
+ *      This function will return the uppercase version of a given string.
+ *
+ *  Parameters:
+ *      some_sting [in]
+ *          Some string to convert to uppercase.
+ *
+ *  Returns:
+ *      Returns the uppercase transformation of a given string.
+ *
+ *  Comments:
+ *      None.
+ */
+std::string Uppercase(std::string some_string)
+{
+    std::ranges::transform(some_string,
+                           some_string.begin(),
+                           [](char c) -> char
+                           { return static_cast<char>(std::toupper(c)); });
+
+    return some_string;
+}
+
+
+} // namespace
+
+
 /*
  *  Parser::Parser()
  *
@@ -1619,151 +1770,6 @@ bool Parser::StoreOption(const Option &option,
     }
 
     return parameter_consumed;
-}
-
-/*
- *  Parser::FindOptionStart()
- *
- *  Description:
- *      This function will accept a vector of strings containing option flags
- *      (e.g., "--") and try to find the start of the argument beyond those
- *      flags.  It will accept a start an end iterator for a string that is
- *      used to compare with
- *      the vector of flag strings.
- *
- *  Parameters:
- *      flags [in]
- *          Vector of option flags to evaluate.
- *
- *      argument_start_iterator [in/out]
- *          A string iterator pointing to the start of a command-line argument.
- *
- *      argument_end [in]
- *          A iterator pointing to the end of the string.
- *
- *  Returns:
- *      True if flags were found and false if no flags were found.  If the
- *      flags are true, the argument_start_iterator will be updated to point to
- *      the first character after the option flags (i.e., the actual argument
- *      name).
- *
- *  Comments:
- *      None.
- */
-bool Parser::FindOptionStart(
-                const std::vector<std::string> &flags,
-                std::string_view::const_iterator &argument_start_iterator,
-                const std::string_view::const_iterator &argument_end_iterator)
-{
-    // Saved copy of the start iterator
-    std::string_view::const_iterator argument_start_iterator_saved{};
-
-    // If the start and end iterators equate, there is nothing to find
-    if (argument_start_iterator == argument_end_iterator) return false;
-
-    // Let's point to the start of the argument
-    argument_start_iterator_saved = argument_start_iterator;
-
-    // Consider each possible flag string (e.g., "--")
-    for (const auto &flag : flags)
-    {
-        // Let's point to the start of the argument
-        argument_start_iterator = argument_start_iterator_saved;
-
-        // See if we can find the flags at the start of the string
-        if (FindStringStart(flag,
-                            argument_start_iterator,
-                            argument_end_iterator))
-        {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-/*
- *  Parser::FindStringStart()
- *
- *  Description:
- *      This function will find the start of a string following a specified
- *      string prefix.  The string prefix might be option flags (e.g., "--") or
- *      an assignment character (e.g., "=").
- *
- *  Parameters:
- *      prefix [in]
- *          A string prefix to skip over.
- *
- *      start_iterator [in/out]
- *          A string iterator pointing to the starting point to evaluate.
- *
- *      end_iterator [in]
- *          An iterator pointing to the end of the string.
- *
- *  Returns:
- *      Returns true if the prefix was located, in which case the
- *      start_iterator will be set to the first character after the prefix
- *      characters.  If the prefix could not be found, false is returned.  Note
- *      that if no characters follow the prefix, the start_iterator will be
- *      equal to end_iterator on return of true.
- *
- *  Comments:
- *      None.
- */
-bool Parser::FindStringStart(
-                        const std::string &prefix,
-                        std::string_view::const_iterator &start_iterator,
-                        const std::string_view::const_iterator &end_iterator)
-{
-    // Count of prefix characters matched
-    unsigned prefix_characters_matched = 0;
-
-    // If the start and end iterators equate, there is nothing to find
-    if (start_iterator == end_iterator) return false;
-
-    // Iterate over each character in the prefix
-    for (const auto c : prefix)
-    {
-        if (c == *start_iterator)
-        {
-            prefix_characters_matched++;
-            start_iterator = std::next(start_iterator);
-            if (start_iterator == end_iterator) break;
-        }
-        else
-        {
-            break;
-        }
-    }
-
-    // Did we match the entire prefix?
-    return (prefix.length() == prefix_characters_matched);
-}
-
-/*
- *  Parser::Uppercase()
- *
- *  Description:
- *      This function will return the uppercase version of a given string.
- *
- *  Parameters:
- *      some_sting [in]
- *          Some string to convert to uppercase.
- *
- *  Returns:
- *      Returns the uppercase transformation of a given string.
- *
- *  Comments:
- *      None.
- */
-std::string Parser::Uppercase(std::string some_string)
-{
-    std::ranges::transform(some_string,
-                           some_string.begin(),
-                           [](char c) -> char
-                           { return static_cast<char>(std::toupper(c)); });
-
-    return some_string;
 }
 
 } // namespace Terra::ProgramOptions
