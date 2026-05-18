@@ -1,7 +1,7 @@
 /*
  *  parser.cpp
  *
- *  Copyright (C) 2024, 2025
+ *  Copyright (C) 2024, 2025, 2026
  *  Terrapane Corporation
  *  All Rights Reserved
  *
@@ -17,13 +17,18 @@
  *      Requires C++20 or later.
  */
 
+#include <cstddef>
 #include <sstream>
 #include <algorithm>
 #include <cctype>
-#include <span>
 #include <iterator>
 #include <utility>
-#include <ranges>
+#include <string>
+#include <string_view>
+#include <unordered_map>
+#include <vector>
+#include <optional>
+#include <stdexcept>
 #include <terra/program_options/program_options.h>
 
 namespace Terra::ProgramOptions
@@ -94,8 +99,7 @@ Parser::Parser(Options option_list,
     short_flags{std::move(short_flag_list)},
     long_flags{std::move(long_flag_list)},
     option_value_separator{std::move(option_separator)},
-    case_insensitive{case_insensitive},
-    option_map{}
+    case_insensitive{case_insensitive}
 {
 }
 
@@ -135,17 +139,17 @@ Parser::Parser(Options option_list,
  *  Comments:
  *      None.
  */
-void Parser::SetOptions(const Options &option_list,
-                        const std::vector<std::string> &short_flag_list,
-                        const std::vector<std::string> &long_flag_list,
-                        const std::string &option_separator,
+void Parser::SetOptions(Options option_list,
+                        std::vector<std::string> short_flag_list,
+                        std::vector<std::string> long_flag_list,
+                        std::string option_separator,
                         const bool is_case_insensitive)
 {
     // Assign parameters to member variables
-    this->options = option_list;
-    this->short_flags = short_flag_list;
-    this->long_flags = long_flag_list;
-    this->option_value_separator = option_separator;
+    this->options = std::move(option_list);
+    this->short_flags = std::move(short_flag_list);
+    this->long_flags = std::move(long_flag_list);
+    this->option_value_separator = std::move(option_separator);
     this->case_insensitive = is_case_insensitive;
 
     // Clear any previously processed options
@@ -205,7 +209,7 @@ void Parser::ClearOptions()
  *  Comments:
  *      None.
  */
-// NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays)
+// NOLINTNEXTLINE(*-avoid-c-arrays)
 void Parser::ParseArguments(const int argc, const char *const argv[])
 {
     // Do nothing if argc doesn't indicate options exist
@@ -440,7 +444,7 @@ template<> void Parser::GetOptionValues<short>(
     // Define the converter function
     auto converter = [min, max](const std::string &value) -> short
                      {
-                         int i = std::stoi(value);
+                         const int i = std::stoi(value);
 
                          if ((i < min) || (i > max))
                          {
@@ -499,7 +503,7 @@ template<> void Parser::GetOptionValues<unsigned short>(
     // Define the converter function
     auto converter = [min, max](const std::string &value) -> unsigned short
                      {
-                         int i = std::stoi(value);
+                         const int i = std::stoi(value);
 
                          if ((std::cmp_less(i, min) ||
                               std::cmp_greater(i, max)))
@@ -610,7 +614,7 @@ template<> void Parser::GetOptionValues<unsigned>(
     // Define the converter function
     auto converter = [min, max](const std::string &value) -> unsigned
                      {
-                         unsigned long i = std::stoul(value);
+                         const unsigned long i = std::stoul(value);
 
                          if ((i < min) || (i > max))
                          {
@@ -1155,7 +1159,7 @@ void Parser::CheckOptions()
         // Ensure we have not seen this name before
         if (identifiers.contains(option.name))
         {
-            std::string error = "Duplicate option identifier found: ";
+            const std::string error = "Duplicate option identifier found: ";
             throw SpecificationException(error + option.name,
                                          OptionsError::DuplicateIdentifier);
         }
@@ -1166,15 +1170,15 @@ void Parser::CheckOptions()
         {
             if (short_options.contains(option.short_option))
             {
-                std::string error = "Duplicate short option observed: ";
+                const std::string error = "Duplicate short option observed: ";
                 throw SpecificationException(
                                         error + option.short_option,
                                         OptionsError::DuplicateShortOption);
             }
             if (option.short_option.length() > 1)
             {
-                std::string error = "A short option contains more than one "
-                                    "character: ";
+                const std::string error =
+                    "A short option contains more than one character: ";
                 throw SpecificationException(error + option.short_option,
                                              OptionsError::InvalidShortOption);
             }
@@ -1186,7 +1190,7 @@ void Parser::CheckOptions()
         {
             if (long_options.contains(option.long_option))
             {
-                std::string error = "Duplicate long option observed: ";
+                const std::string error = "Duplicate long option observed: ";
                 throw SpecificationException(error + option.long_option,
                                              OptionsError::DuplicateLongOption);
             }
@@ -1421,7 +1425,7 @@ std::pair<bool, bool> Parser::ProcessLongOption(
     // If we could not match an option, raise an exception
     if (!matched_option)
     {
-        std::string error = "Invalid option specified: ";
+        const std::string error = "Invalid option specified: ";
         throw OptionsException(error + std::string(argument),
                                OptionsError::InvalidLongOption);
     }
@@ -1499,7 +1503,7 @@ std::pair<bool, bool> Parser::ProcessShortOption(
         bool matched_option = false;
 
         // Get character pointed to by the iterator
-        std::string user_option = std::string() + *argument_iterator;
+        const std::string user_option = std::string() + *argument_iterator;
         argument_iterator = std::next(argument_iterator);
 
         // Iterate over the options to find a match
@@ -1537,7 +1541,7 @@ std::pair<bool, bool> Parser::ProcessShortOption(
         // If we could not match an option, raise an exception
         if (!matched_option)
         {
-            std::string error = "Invalid option specified: ";
+            const std::string error = "Invalid option specified: ";
             throw OptionsException(error + std::string(argument),
                                    OptionsError::InvalidShortOption);
         }

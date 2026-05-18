@@ -267,11 +267,11 @@ class Parser
 {
     public:
         Parser();
-        Parser(Options option_list,
-               std::vector<std::string> short_flag_list = {"-"},
-               std::vector<std::string> long_flag_list = {"--"},
-               std::string option_separator = "=",
-               bool is_case_insensitive = false);
+        explicit Parser(Options option_list,
+                        std::vector<std::string> short_flag_list = {"-"},
+                        std::vector<std::string> long_flag_list = {"--"},
+                        std::string option_separator = "=",
+                        bool is_case_insensitive = false);
         Parser(const Parser &parser) = default;
         Parser(Parser &&parser) noexcept = default;
         virtual ~Parser() = default;
@@ -279,15 +279,15 @@ class Parser
         Parser &operator=(const Parser &parser) = default;
         Parser &operator=(Parser &&parser) = default;
 
-        void SetOptions(const Options &option_list,
-                        const std::vector<std::string> &short_flag_list = {"-"},
-                        const std::vector<std::string> &long_flag_list = {"--"},
-                        const std::string &option_separator = "=",
+        void SetOptions(Options option_list,
+                        std::vector<std::string> short_flag_list = {"-"},
+                        std::vector<std::string> long_flag_list = {"--"},
+                        std::string option_separator = "=",
                         const bool is_case_insensitive = false);
 
         virtual void ClearOptions();
 
-        void ParseArguments(const int argc, const char *const argv[]);
+        void ParseArguments(const int argc, const char *const argv[]); //NOLINT
         void ParseArguments(const std::vector<std::string> &arguments);
         void ParseArguments(const std::vector<std::string_view> &arguments);
 
