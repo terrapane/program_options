@@ -4,6 +4,7 @@ v1.0.5
 
 - Addressed a number of issues raised by clang-tidy (e.g., pointer arithmetic,
   use of std::ranges)
+- Updated dependencies
 
 v1.0.4
 
