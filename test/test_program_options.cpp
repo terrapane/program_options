@@ -1,7 +1,7 @@
 /*
  *  test_program_options.cpp
  *
- *  Copyright (C) 2024, 2025
+ *  Copyright (C) 2024, 2025, 2026
  *  Terrapane Corporation
  *  All Rights Reserved
  *
@@ -328,7 +328,7 @@ STF_TEST(ProgramOptions, TestOptionsSpecFlagConflict)
     }
     catch (const Terra::ProgramOptions::SpecificationException &e)
     {
-        if (e.options_error ==
+        if (e.GetOptionsError() ==
                             Terra::ProgramOptions::OptionsError::FlagConflict)
         {
             exception_caught = true;
@@ -366,7 +366,7 @@ STF_TEST(ProgramOptions, TestOptionsSpecEmptyIdentifier)
     }
     catch (const Terra::ProgramOptions::SpecificationException &e)
     {
-        if (e.options_error ==
+        if (e.GetOptionsError() ==
                     Terra::ProgramOptions::OptionsError::EmptyIdentifierName)
         {
             exception_caught = true;
@@ -404,7 +404,7 @@ STF_TEST(ProgramOptions, TestOptionsSpecDuplicateIdentifier)
     }
     catch (const Terra::ProgramOptions::SpecificationException &e)
     {
-        if (e.options_error ==
+        if (e.GetOptionsError() ==
                     Terra::ProgramOptions::OptionsError::DuplicateIdentifier)
         {
             exception_caught = true;
@@ -442,7 +442,7 @@ STF_TEST(ProgramOptions, TestOptionsSpecDuplicateShortOption)
     }
     catch (const Terra::ProgramOptions::SpecificationException &e)
     {
-        if (e.options_error ==
+        if (e.GetOptionsError() ==
                     Terra::ProgramOptions::OptionsError::DuplicateShortOption)
         {
             exception_caught = true;
@@ -480,7 +480,7 @@ STF_TEST(ProgramOptions, TestOptionsSpecDuplicateLongOption)
     }
     catch (const Terra::ProgramOptions::SpecificationException &e)
     {
-        if (e.options_error ==
+        if (e.GetOptionsError() ==
                     Terra::ProgramOptions::OptionsError::DuplicateLongOption)
         {
             exception_caught = true;
@@ -518,7 +518,7 @@ STF_TEST(ProgramOptions, TestOptionsSpecInvalidShortOption1)
     }
     catch (const Terra::ProgramOptions::SpecificationException &e)
     {
-        if (e.options_error ==
+        if (e.GetOptionsError() ==
                     Terra::ProgramOptions::OptionsError::InvalidShortOption)
         {
             exception_caught = true;
@@ -587,7 +587,7 @@ STF_TEST(ProgramOptions, InvalidShortOption2)
     }
     catch (const Terra::ProgramOptions::OptionsException &e)
     {
-        if (e.options_error ==
+        if (e.GetOptionsError() ==
                         Terra::ProgramOptions::OptionsError::InvalidShortOption)
         {
             exception_caught = true;
@@ -657,7 +657,7 @@ STF_TEST(ProgramOptions, InvalidLongOptionParsing)
     }
     catch (const Terra::ProgramOptions::OptionsException &e)
     {
-        if (e.options_error ==
+        if (e.GetOptionsError() ==
                         Terra::ProgramOptions::OptionsError::InvalidLongOption)
         {
             exception_caught = true;
@@ -729,7 +729,7 @@ STF_TEST(ProgramOptions, MultipleInstances1)
     }
     catch (const Terra::ProgramOptions::OptionsException &e)
     {
-        if (e.options_error ==
+        if (e.GetOptionsError() ==
                         Terra::ProgramOptions::OptionsError::MultipleInstances)
         {
             exception_caught = true;
@@ -801,7 +801,7 @@ STF_TEST(ProgramOptions, MultipleInstances2)
     }
     catch (const Terra::ProgramOptions::OptionsException &e)
     {
-        if (e.options_error ==
+        if (e.GetOptionsError() ==
                         Terra::ProgramOptions::OptionsError::MultipleInstances)
         {
             exception_caught = true;
@@ -868,7 +868,7 @@ STF_TEST(ProgramOptions, MissingOptionArgument)
     }
     catch (const Terra::ProgramOptions::OptionsException &e)
     {
-        if (e.options_error ==
+        if (e.GetOptionsError() ==
                     Terra::ProgramOptions::OptionsError::MissingOptionArgument)
         {
             exception_caught = true;
@@ -939,7 +939,7 @@ STF_TEST(ProgramOptions, OptionNotGiven)
     }
     catch (const Terra::ProgramOptions::OptionsException &e)
     {
-        if (e.options_error ==
+        if (e.GetOptionsError() ==
                         Terra::ProgramOptions::OptionsError::OptionNotGiven)
         {
             exception_caught = true;
@@ -1078,7 +1078,7 @@ STF_TEST(ProgramOptions, OptionValueError)
     }
     catch (const Terra::ProgramOptions::OptionsException &e)
     {
-        if (e.options_error ==
+        if (e.GetOptionsError() ==
                         Terra::ProgramOptions::OptionsError::OptionValueError)
         {
             exception_caught = true;

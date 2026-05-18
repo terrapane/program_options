@@ -1,7 +1,7 @@
 /*
  *  program_options.h
  *
- *  Copyright (C) 2024, 2025
+ *  Copyright (C) 2024, 2025, 2026
  *  Terrapane Corporation
  *  All Rights Reserved
  *
@@ -194,7 +194,7 @@ namespace Terra::ProgramOptions
 {
 
 // Define the various error types for the following exceptions
-enum class OptionsError
+enum class OptionsError : std::uint8_t
 {
     // Errors related to OptionsSpec
     FlagConflict,
@@ -232,7 +232,11 @@ class OptionsException : public std::runtime_error
         {
         }
 
-        const OptionsError options_error;
+        OptionsError GetOptionsError() const { return options_error; }
+
+    private:
+
+        OptionsError options_error;
 };
 
 // Define an exception that just for issues related to the options specification
