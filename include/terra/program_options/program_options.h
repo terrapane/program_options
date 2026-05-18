@@ -287,22 +287,23 @@ class Parser
 
         virtual void ClearOptions();
 
-        void ParseArguments(const int argc, const char *const argv[]); //NOLINT
+         // NOLINTNEXTLINE(*-avoid-c-arrays)
+        void ParseArguments(const int argc, const char *const argv[]);
         void ParseArguments(const std::vector<std::string> &arguments);
         void ParseArguments(const std::vector<std::string_view> &arguments);
 
-        bool OptionGiven(const std::string &option_name);
-        std::size_t GetOptionCount(const std::string &option_name);
+        bool OptionGiven(const std::string &option_name) const;
+        std::size_t GetOptionCount(const std::string &option_name) const;
 
-        std::string GetOptionString(const std::string &option_name);
+        std::string GetOptionString(const std::string &option_name) const;
         std::vector<std::string> GetOptionStrings(
-                                            const std::string &option_name);
+                                        const std::string &option_name) const;
 
         template<NumericType T>
         void GetOptionValue(const std::string &option_name,
                             T &option_value,
                             T min = std::numeric_limits<T>::min(),
-                            T max = std::numeric_limits<T>::max())
+                            T max = std::numeric_limits<T>::max()) const
         {
             std::vector<T> option_values;
             GetOptionValues(option_name, option_values, min, max);
@@ -312,19 +313,19 @@ class Parser
         void GetOptionValues(const std::string &option_name,
                              std::vector<T> &option_values,
                              T min = std::numeric_limits<T>::min(),
-                             T max = std::numeric_limits<T>::max());
+                             T max = std::numeric_limits<T>::max()) const;
 
     protected:
         const std::vector<std::string> &FindOptionStrings(
-                                            const std::string &option_name);
+                                        const std::string &option_name) const;
         template<NumericType T, typename Func>
         void GetOptionValues(const std::string &option_name,
                              const Func &converter,
                              std::vector<T> &option_values,
                              T min,
-                             T max);
-        void CheckOptionFlags();
-        void CheckOptions();
+                             T max) const;
+        void CheckOptionFlags() const;
+        void CheckOptions() const;
         bool ProcessArgument(const std::string_view argument,
                              const std::optional<std::string_view> &parameter);
         std::pair<bool, bool> ProcessLongOption(

@@ -452,7 +452,7 @@ void Parser::ParseArguments(const std::vector<std::string_view> &arguments)
  *  Comments:
  *      None.
  */
-bool Parser::OptionGiven(const std::string &option_name)
+bool Parser::OptionGiven(const std::string &option_name) const
 {
     return option_map.contains(option_name);
 }
@@ -479,7 +479,7 @@ bool Parser::OptionGiven(const std::string &option_name)
  *  Comments:
  *      None.
  */
-std::size_t Parser::GetOptionCount(const std::string &option_name)
+std::size_t Parser::GetOptionCount(const std::string &option_name) const
 {
     auto it = option_map.find(option_name);
 
@@ -517,7 +517,7 @@ std::size_t Parser::GetOptionCount(const std::string &option_name)
  *      given by the user.  One should first check for existence of an option
  *      by calling OptionGiven() or GetOptionCount().
  */
-std::string Parser::GetOptionString(const std::string &option_name)
+std::string Parser::GetOptionString(const std::string &option_name) const
 {
     return FindOptionStrings(option_name).front();
 }
@@ -545,7 +545,7 @@ std::string Parser::GetOptionString(const std::string &option_name)
  *      by calling OptionGiven() or GetOptionCount().
  */
 std::vector<std::string> Parser::GetOptionStrings(
-                                                const std::string &option_name)
+                                        const std::string &option_name) const
 {
     return FindOptionStrings(option_name);
 }
@@ -590,7 +590,7 @@ template<> void Parser::GetOptionValues<short>(
                                             const std::string &option_name,
                                             std::vector<short> &option_values,
                                             short min,
-                                            short max)
+                                            short max) const
 {
     // Define the converter function
     auto converter = [min, max](const std::string &value) -> short
@@ -649,7 +649,7 @@ template<> void Parser::GetOptionValues<unsigned short>(
                                     const std::string &option_name,
                                     std::vector<unsigned short> &option_values,
                                     unsigned short min,
-                                    unsigned short max)
+                                    unsigned short max) const
 {
     // Define the converter function
     auto converter = [min, max](const std::string &value) -> unsigned short
@@ -708,7 +708,7 @@ template<> void Parser::GetOptionValues<unsigned short>(
 template<> void Parser::GetOptionValues<int>(const std::string &option_name,
                                              std::vector<int> &option_values,
                                              int min,
-                                             int max)
+                                             int max) const
 {
     // Define the converter function
     auto converter = [](const std::string &value) -> int
@@ -760,7 +760,7 @@ template<> void Parser::GetOptionValues<unsigned>(
                                         const std::string &option_name,
                                         std::vector<unsigned> &option_values,
                                         unsigned min,
-                                        unsigned max)
+                                        unsigned max) const
 {
     // Define the converter function
     auto converter = [min, max](const std::string &value) -> unsigned
@@ -818,7 +818,7 @@ template<> void Parser::GetOptionValues<unsigned>(
 template<> void Parser::GetOptionValues<long>(const std::string &option_name,
                                               std::vector<long> &option_values,
                                               long min,
-                                              long max)
+                                              long max) const
 {
     // Define the converter function
     auto converter = [](const std::string &value) -> long
@@ -870,7 +870,7 @@ template<> void Parser::GetOptionValues<unsigned long>(
                                     const std::string &option_name,
                                     std::vector<unsigned long> &option_values,
                                     unsigned long min,
-                                    unsigned long max)
+                                    unsigned long max) const
 {
     // Define the converter function
     auto converter = [](const std::string &value) -> unsigned long
@@ -922,7 +922,7 @@ template<> void Parser::GetOptionValues<long long>(
                                         const std::string &option_name,
                                         std::vector<long long> &option_values,
                                         long long min,
-                                        long long max)
+                                        long long max) const
 {
     // Define the converter function
     auto converter = [](const std::string &value) -> long long
@@ -974,7 +974,7 @@ template<> void Parser::GetOptionValues<unsigned long long>(
                                 const std::string &option_name,
                                 std::vector<unsigned long long> &option_values,
                                 unsigned long long min,
-                                unsigned long long max)
+                                unsigned long long max) const
 {
     // Define the converter function
     auto converter = [](const std::string &value) -> unsigned long long
@@ -1026,7 +1026,7 @@ template<> void Parser::GetOptionValues<float>(
                                             const std::string &option_name,
                                             std::vector<float> &option_values,
                                             float min,
-                                            float max)
+                                            float max) const
 {
     // Define the converter function
     auto converter = [](const std::string &value) -> float
@@ -1078,7 +1078,7 @@ template<> void Parser::GetOptionValues<double>(
                                             const std::string &option_name,
                                             std::vector<double> &option_values,
                                             double min,
-                                            double max)
+                                            double max) const
 {
     // Define the converter function
     auto converter = [](const std::string &value) -> double
@@ -1116,7 +1116,7 @@ template<> void Parser::GetOptionValues<double>(
  *      an option by calling OptionGiven() or GetOptionCount().
  */
 const std::vector<std::string> &Parser::FindOptionStrings(
-                                                const std::string &option_name)
+                                        const std::string &option_name) const
 {
     auto it = option_map.find(option_name);
 
@@ -1168,7 +1168,7 @@ void Parser::GetOptionValues(const std::string &option_name,
                              const Func &converter,
                              std::vector<T> &option_values,
                              T min,
-                             T max)
+                             T max) const
 {
     const std::string unknown = "<unknown>";
     const std::string *context = nullptr;
@@ -1260,7 +1260,7 @@ void Parser::GetOptionValues(const std::string &option_name,
  *  Comments:
  *      None.
  */
-void Parser::CheckOptionFlags()
+void Parser::CheckOptionFlags() const
 {
     // Ensure the same flag was not specified for both long and short flags
     for (const auto &long_flag : long_flags)
@@ -1292,7 +1292,7 @@ void Parser::CheckOptionFlags()
  *  Comments:
  *      None.
  */
-void Parser::CheckOptions()
+void Parser::CheckOptions() const
 {
     std::unordered_map<std::string, bool> identifiers;
     std::unordered_map<std::string, bool> short_options;
