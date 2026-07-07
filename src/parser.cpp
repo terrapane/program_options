@@ -70,7 +70,7 @@ bool FindStringStart(const std::string &prefix,
                      const std::string_view::const_iterator &end_iterator)
 {
     // Count of prefix characters matched
-    unsigned prefix_characters_matched = 0;
+    std::size_t prefix_characters_matched = 0;
 
     // If the start and end iterators equate, there is nothing to find
     if (start_iterator == end_iterator) return false;
@@ -176,11 +176,12 @@ std::string Uppercase(std::string some_string)
     std::ranges::transform(some_string,
                            some_string.begin(),
                            [](char c) -> char
-                           { return static_cast<char>(std::toupper(c)); });
+                           {
+                               return static_cast<char>(std::toupper(c));
+                           });
 
     return some_string;
 }
-
 
 } // namespace
 
