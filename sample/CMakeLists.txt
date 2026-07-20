@@ -14,5 +14,5 @@ set_target_properties(program_options_sample
 # Use the following compile options
 target_compile_options(program_options_sample
     PRIVATE
-        $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>: -Wpedantic -Wextra -Wall>
+        $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>: -Wpedantic -Wextra -Wall -Wconversion -Wshadow>
             $<$<CXX_COMPILER_ID:MSVC>:/W4 /WX>)

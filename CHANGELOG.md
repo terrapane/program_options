@@ -1,5 +1,9 @@
 # Change Log
 
+v1.0.6
+
+- Stricter compiler warnings
+
 v1.0.5
 
 - Addressed a number of issues raised by clang-tidy (e.g., pointer arithmetic,
